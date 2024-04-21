@@ -7,15 +7,13 @@ import './App.css';
 
 const App: React.FC = () => {
   const webcamRef = useRef<Webcam>(null);
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [extractedText, setExtractedText] = useState<string | null>(null);
   const [isFrontCamera, setIsFrontCamera] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  const capture = useCallback(() => {
+  const captureAndExtractText = useCallback(() => {
     const imageSrc = webcamRef.current?.getScreenshot();
     if (imageSrc) {
-      setCapturedImage(imageSrc);
       Tesseract.recognize(imageSrc, 'eng')
         .then(({ data: { text } }) => {
           setExtractedText(text);
@@ -26,7 +24,7 @@ const App: React.FC = () => {
           setExtractedText(null);
         });
     }
-  }, [webcamRef]);
+  }, []);
 
   const switchCamera = useCallback(() => {
     setIsFrontCamera(prevState => !prevState);
@@ -38,7 +36,7 @@ const App: React.FC = () => {
 
   return (
     <div className="app-container">
-      <h1 className="app-title">Thabani's Image Text Extraction</h1>
+      <h1 className="app-title">Camera Image Text Extraction</h1>
       <div className="webcam-container">
         <Webcam
           audio={false}
@@ -49,10 +47,9 @@ const App: React.FC = () => {
           }}
           style={{ width: '100%', height: 'auto' }}
         />
-        <button className="capture-button" onClick={capture}>Capture</button>
+        <button className="capture-button" onClick={captureAndExtractText}>Capture and Extract Text</button>
         <button className="switch-camera-button" onClick={switchCamera}>Switch Camera</button>
       </div>
-      {capturedImage && <img className="captured-image" src={capturedImage} alt="captured" />}
       <Modal isOpen={isModalOpen} closeModal={closeModal} text={extractedText} />
     </div>
   );
